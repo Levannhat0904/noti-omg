@@ -1,98 +1,272 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { MinerList } from '@/components/MinerList';
+import { MINER_CONFIG } from '@/config/minerConfig';
+import { useMinerFetcher } from '@/hooks/useMinerFetcher';
+import { backgroundFetchService } from '@/services/backgroundFetchService';
+import * as Notifications from 'expo-notifications';
+import React, { useEffect } from 'react';
+import {
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const fetcher = useMinerFetcher(); // Sử dụng config mặc định
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  useEffect(() => {
+    // Yêu cầu quyền notifications
+    requestNotificationPermissions();
+
+    // Bắt đầu fetch khi component mount
+    fetcher.startFetching();
+
+    // Đăng ký background fetch (15 phút)
+    backgroundFetchService.registerBackgroundFetch(900);
+
+    // Cleanup khi component unmount
+    return () => {
+      fetcher.stopFetching();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const requestNotificationPermissions = async () => {
+    try {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Cảnh báo',
+          'Ứng dụng cần quyền gửi thông báo để hoạt động tốt nhất'
+        );
+      }
+    } catch (error) {
+      console.error('Error requesting notification permissions:', error);
+    }
+  };
+
+  const handleToggleFetching = () => {
+    if (fetcher.isRunning) {
+      fetcher.stopFetching();
+    } else {
+      fetcher.startFetching();
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>🎯 Miners Tracker</Text>
+          {fetcher.lastUpdated && (
+            <View style={{flexDirection: "row", alignItems: "center", gap: 8}}>
+            <Text style={styles.statusLabel}>
+              Cập nhật: {fetcher.lastUpdated.toLocaleTimeString("vi-VN")}
+            </Text>
+            </View>
+          )}
+          <Text style={styles.subtitle}>
+            Theo dõi dữ liệu mỗi {MINER_CONFIG.FETCH.INTERVAL_MS / 1000}s
+          </Text>
+        </View>
+        {/* Status bar */}
+        <View style={styles.statusBar}>
+          <View style={styles.statusItem}>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: fetcher.isRunning ? "#4CAF50" : "#FF9800",
+                },
+              ]}
+            >
+              <Text style={styles.statusBadgeText}>
+                {fetcher.isRunning ? "🟢 Đang chạy" : "🔴 Dừng"}
+              </Text>
+            </View>
+          </View>
+
+          {fetcher.error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>❌ {fetcher.error}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* Miner List */}
+      <MinerList
+        miners={fetcher.miners}
+        loading={fetcher.loading}
+        onRefresh={fetcher.manualFetch}
+        lastUpdated={fetcher.lastUpdated}
+      />
+
+      {/* Control buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              backgroundColor: fetcher.isRunning ? "#FF6B6B" : "#4CAF50",
+            },
+          ]}
+          onPress={handleToggleFetching}
+        >
+          <Text style={styles.buttonText}>
+            {fetcher.isRunning ? "⏸️ Dừng" : "▶️ Bắt đầu"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#2196F3" }]}
+          onPress={fetcher.manualFetch}
+          disabled={fetcher.loading}
+        >
+          <Text style={styles.buttonText}>🔄 Refresh</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#9E9E9E" }]}
+          onPress={() =>
+            Alert.alert(
+              "Xóa dữ liệu local",
+              "Bạn có chắc muốn xóa dữ liệu đã lưu?",
+              [
+                { text: "Hủy", style: "cancel" },
+                {
+                  text: "Xóa",
+                  style: "destructive",
+                  onPress: () => fetcher.clearLocal(),
+                },
+              ]
+            )
+          }
+        >
+          <Text style={styles.buttonText}>🧹 Xóa data</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Background Fetch Info */}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: "#999",
+  },
+  statusBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
+  statusItem: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  statusLabel: {
+    fontSize: 12,
+    color: "#666",
+    fontWeight: "500",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statusLabe2: {
+    fontSize: 12,
+    color: "#666",
+    fontWeight: "500",
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  errorBox: {
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#FFEBEE",
+    borderRadius: 6,
+    borderLeftWidth: 4,
+    borderLeftColor: "#FF6B6B",
+  },
+  errorText: {
+    fontSize: 12,
+    color: "#C62828",
+    fontWeight: "500",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  infoContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#E3F2FD",
+    borderTopWidth: 1,
+    borderTopColor: "#BBDEFB",
+  },
+  infoTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#1565C0",
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 12,
+    color: "#0D47A1",
+    lineHeight: 18,
   },
 });
