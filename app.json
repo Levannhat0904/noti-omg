@@ -11,7 +11,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "Ứng dụng sử dụng thông báo để cập nhật dữ liệu miners"
+        "NSUserNotificationUsageDescription": "Ứng dụng sử dụng thông báo để cập nhật dữ liệu miners",
+        "UIBackgroundModes": ["fetch", "remote-notification"]
       },
       "bundleIdentifier": "com.anonymous.noti"
     },

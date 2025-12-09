@@ -1,0 +1,82 @@
+[
+  {
+    "video_id": "mvEv0cWKs",
+    "task_id": "mvEv0cWKs",
+    "miner_hotkey": "5HBv1ZieCu4JGA58xhTBiDoLWbkCseEH7sG2a24YVSViRnD8",
+    "earned_reward_tao": 0.008232892050319435,
+    "created_at": "2025-12-08T06:54:41.696364Z",
+    "focusing_task": "Create December Surgery Schedule List in Spreadsheet"
+  },
+  {
+    "video_id": "55b7e0",
+    "task_id": "55b7e0",
+    "miner_hotkey": "5HdY5X1e61y2b4ruQF1knSJgqzDKC8jD6AjaQuYEHr2Gr7xv",
+    "earned_reward_tao": 0.007690080700611588,
+    "created_at": "2025-12-07T21:46:11.145278Z",
+    "focusing_task": "Create a Digital Scoresheet with 20 Entry Rows"
+  },
+  {
+    "video_id": "21ekTT4mG",
+    "task_id": "21ekTT4mG",
+    "miner_hotkey": "5EhMzjiXsdwD7kPJMEGqcW2SGZyN35gMJSryqX2QryY4xP68",
+    "earned_reward_tao": 0.06,
+    "created_at": "2025-12-07T19:40:01.842303Z",
+    "focusing_task": "Fix SN24 Emissions Issue in Python Miners"
+  },
+  {
+    "video_id": "Zcb3Q7ZSa",
+    "task_id": "Zcb3Q7ZSa",
+    "miner_hotkey": "5Dt2bHk2CNgS2Rqpo2kBFZMBZjjvcxYzBgzP77ieWXnZQs8s",
+    "earned_reward_tao": 0.08004933590949412,
+    "created_at": "2025-12-07T08:54:21.754317Z",
+    "focusing_task": "Build a React Employee Management Web App with CRUD, Search, and Filters"
+  },
+  {
+    "video_id": "c38910",
+    "task_id": "c38910",
+    "miner_hotkey": "5HBv1ZieCu4JGA58xhTBiDoLWbkCseEH7sG2a24YVSViRnD8",
+    "earned_reward_tao": 0.009738650046037255,
+    "created_at": "2025-12-07T07:56:46.681877Z",
+    "focusing_task": "Create a Finalized Surgery List Document"
+  },
+  {
+    "video_id": "zzQyfkUEw",
+    "task_id": "zzQyfkUEw",
+    "miner_hotkey": "5DRawve9Q6sqEUEn6e6BByfNgQ3hyACCcy5wk1FZF9pTZG8H",
+    "earned_reward_tao": 0.028258999877134785,
+    "created_at": "2025-12-04T13:37:59.710389Z",
+    "focusing_task": "Create a Daily Work Log in Notion Template"
+  },
+  {
+    "video_id": "k23s3ONWX",
+    "task_id": "k23s3ONWX",
+    "miner_hotkey": "5HBv1ZieCu4JGA58xhTBiDoLWbkCseEH7sG2a24YVSViRnD8",
+    "earned_reward_tao": 0.049313035648781145,
+    "created_at": "2025-12-04T13:01:19.385634Z",
+    "focusing_task": "Build a Notion Ideas Dashboard with 10 Categories"
+  },
+  {
+    "video_id": "QoJdrqPF3",
+    "task_id": "QoJdrqPF3",
+    "miner_hotkey": "5D1x18bQnbSJTwvn7NZrSc9ZLxfcsZJdPUpNkLWwDLBkRv27",
+    "earned_reward_tao": 0.051531914893617026,
+    "created_at": "2025-12-03T21:28:18.932041Z",
+    "focusing_task": "Create a Notion Blog Post with Images and Formatting"
+  },
+  {
+    "video_id": "b0ab08",
+    "task_id": "b0ab08",
+    "miner_hotkey": "5CJ2rVkuknCy6Z256tgEYNhvRCUQmGgUmcDb5dqighbSjs9s",
+    "earned_reward_tao": 0.01478620881605956,
+    "created_at": "2025-12-03T17:19:27.040726Z",
+    "focusing_task": "Design a Persona Page in Notion with 3 Sections"
+  },
+  {
+    "video_id": "caa3f9",
+    "task_id": "caa3f9",
+    "miner_hotkey": "5HdY5X1e61y2b4ruQF1knSJgqzDKC8jD6AjaQuYEHr2Gr7xv",
+    "earned_reward_tao": 0.008360924383799873,
+    "created_at": "2025-12-03T10:47:10.346406Z",
+    "focusing_task": "Recreate Design Element in Figma with Specifications"
+  }
+]

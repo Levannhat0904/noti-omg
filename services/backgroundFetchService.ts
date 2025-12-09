@@ -56,7 +56,7 @@ export const backgroundFetchService = {
    * Đăng ký background fetch task
    * @param intervalSeconds - Khoảng thời gian giữa các lần fetch (giây)
    */
-  async registerBackgroundFetch(intervalSeconds: number = 900) {
+  async registerBackgroundFetch(intervalSeconds: number = 120) {
     try {
       // Kiểm tra xem task đã được đăng ký chưa
       const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK);
@@ -67,13 +67,25 @@ export const backgroundFetchService = {
       }
 
       // Đăng ký background fetch
-      await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-        minimumInterval: intervalSeconds, // Tối thiểu 15 phút (900 giây) trên iOS
-        stopOnTerminate: false, // Tiếp tục chạy khi app bị terminate
-        startOnBoot: true, // Bắt đầu khi device khởi động
-      });
+      try {
+        await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+          minimumInterval: intervalSeconds, // Tối thiểu 2 phút (120 giây) trên iOS
+          stopOnTerminate: false, // Tiếp tục chạy khi app bị terminate
+          startOnBoot: true, // Bắt đầu khi device khởi động
+        });
 
-      console.log(`🟢 Background fetch đã được đăng ký (mỗi ${intervalSeconds}s)`);
+        console.log(`🟢 Background fetch đã được đăng ký (mỗi ${intervalSeconds}s)`);
+      } catch (registerError: any) {
+        // Nếu lỗi là do chưa cấu hình Info.plist, log warning thay vì error
+        if (registerError?.message?.includes('UIBackgroundModes')) {
+          console.warn(
+            '⚠️ Background Fetch chưa được cấu hình trong Info.plist. ' +
+            'Vui lòng thêm "fetch" vào UIBackgroundModes để enable background fetch trên iOS.'
+          );
+        } else {
+          throw registerError;
+        }
+      }
     } catch (error) {
       console.error('❌ Lỗi khi đăng ký background fetch:', error);
     }

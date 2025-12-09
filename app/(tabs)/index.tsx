@@ -17,14 +17,22 @@ export default function HomeScreen() {
   const fetcher = useMinerFetcher(); // Sử dụng config mặc định
 
   useEffect(() => {
-    // Yêu cầu quyền notifications
-    requestNotificationPermissions();
+    const initializeApp = async () => {
+      try {
+        // Yêu cầu quyền notifications
+        await requestNotificationPermissions();
 
-    // Bắt đầu fetch khi component mount
-    fetcher.startFetching();
+        // Bắt đầu fetch khi component mount
+        fetcher.startFetching();
 
-    // Đăng ký background fetch (15 phút)
-    backgroundFetchService.registerBackgroundFetch(900);
+        // Đăng ký background fetch (2 phút)
+        await backgroundFetchService.registerBackgroundFetch(120);
+      } catch (error) {
+        console.error('Lỗi khởi tạo ứng dụng:', error);
+      }
+    };
+
+    initializeApp();
 
     // Cleanup khi component unmount
     return () => {
